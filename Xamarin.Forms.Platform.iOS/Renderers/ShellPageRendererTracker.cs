@@ -442,8 +442,6 @@ namespace Xamarin.Forms.Platform.iOS
 			if (Forms.IsiOS11OrNewer)
 				NavigationItem.HidesSearchBarWhenScrolling = visibility == SearchBoxVisiblity.Collapsable;
 
-			_searchHandlerAppearanceTracker = new SearchHandlerAppearanceTracker(searchBar, SearchHandler);
-
 			var icon = SearchHandler.QueryIcon;
 			if (icon != null)
 			{
@@ -462,7 +460,9 @@ namespace Xamarin.Forms.Platform.iOS
 				SetSearchBarIcon(searchBar, icon, UISearchBarIcon.Bookmark);
 			}
 
-			searchBar.ShowsBookmarkButton = SearchHandler.ClearPlaceholderEnabled;		
+			searchBar.ShowsBookmarkButton = SearchHandler.ClearPlaceholderEnabled;
+
+			_searchHandlerAppearanceTracker = new SearchHandlerAppearanceTracker(searchBar, SearchHandler);
 		}
 
 		void BookmarkButtonClicked(object sender, EventArgs e)
@@ -503,7 +503,11 @@ namespace Xamarin.Forms.Platform.iOS
 		async void SetSearchBarIcon(UISearchBar searchBar, ImageSource source, UISearchBarIcon icon)
 		{
 			var result = await source.GetNativeImageAsync();
-			searchBar.SetImageforSearchBarIcon(result, icon, UIControlState.Normal);
+			var newResult = result.ImageWithRenderingMode(UIImageRenderingMode.AlwaysTemplate);
+			searchBar.SetImageforSearchBarIcon(newResult, icon, UIControlState.Normal);
+			searchBar.SetImageforSearchBarIcon(newResult, icon, UIControlState.Highlighted);
+			searchBar.SetImageforSearchBarIcon(newResult, icon, UIControlState.Selected);
+			searchBar.SetImageforSearchBarIcon(newResult, icon, UIControlState.Disabled);
 		}
 
 		void PageAppearing(object sender, EventArgs e)
